@@ -1,8 +1,8 @@
 GcodeFixer = {
     fix: {
-        head: 'head',
-        end: 'end',
-        functions: 'functions',
+        head: null,
+        end: null,
+        functions: {}
     },
 
     process: function(sourse) {
@@ -10,7 +10,7 @@ GcodeFixer = {
         parts.push(this.fix.head);
         parts.push(this.fixSource(sourse));
         parts.push(this.fix.end);
-        parts.push(this.fix.functions);
+        parts.push( Object.values(this.fix.functions).join("\n"));
         return parts.join("\n");
     },
 
@@ -22,49 +22,103 @@ GcodeFixer = {
 
         lines.forEach(function(line) {
 
-            var code = line.substring(0,3);
+            var code = line.substring(0, 1);
 
-            if (code === 'G00') {
-                result.push('N500'+page+' P200=500'+page+'');
+            if (code === 'G' && line.substring(0, 3) === 'G00') {
+                result.push('N500' + page + ' P200=500' + page + '');
                 page++;
-            }
-            if (code === 'G21') {
-                return;
+                result.push(line);
+            } else if (code === 'F') {
+                let func = line;
+                let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
+                if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
+                    result.push(funcIndex.replace('N', 'Q'));
+                } else {
+                    result.push(line);
+                }
+            } else {
+                result.push(line);
             }
 
 
-            result.push(line);
         });
 
         return result.join("\n");
     },
 
     parseFix: function(fix) {
-        var parts = fix.split("\n\n");
-        this.fix.head = [parts[0], parts[1]].join("\n");
-//        console.log(parts);
-    }
 
+        var parts = this.repack(fix).split("\n\n");
+
+        this.fix.head = [parts[0], parts[1]].join("\n");
+        this.fix.end = [parts[2]].join("\n");
+
+        parts.forEach(function(part, index) {
+            var result = [];
+            var lines = part.split("\n");
+            lines.forEach(function(line) {
+                var code = line.substring(0, 3);
+                if (code) {
+                    result.push(line);
+                }
+            });
+
+            var part = result.join("\n");
+
+            var code = part.substring(0, 1);
+            if (code === "N") {
+                GcodeFixer.fix.functions[result[0].replace(/\(.*\)/g, '').trim()] = part;
+            }
+
+//          return result.join("\n");
+
+//            console.log(index, result.join("\n"));
+        });
+
+        // console.log(GcodeFixer.fix.functions);
+    },
+    repack: function(string) {
+
+        var strings = string.split("\n");
+
+        var newArr =  strings.map(function(line) {
+            return line.trim();
+        });
+
+        return newArr.join("\n");
+
+    }
 };
 
 
 var vueApp = new Vue({
     el: '#app',
     data: {
-        input: 'G00 X0 Y0',
-        output: 'G00 X0 Y0',
-        fix: 'G00 X0 Y0',
+        input: null,
+        output: null,
+        fix: null,
+        head: null,
+        end: null,
+        functions: {}
     },
     methods: {
-        onFile(sourse) {
+        onCncFile(sourse) {
             this.input = sourse;
-
-
-            this.fix = document.getElementById('fix').innerHTML;
-            GcodeFixer.parseFix(this.fix);
-            this.output = GcodeFixer.process(sourse);
-
+            if(this.head){
+                this.output = GcodeFixer.process(sourse);
+            }
         },
+
+        onIsoFile(sourse) {
+            GcodeFixer.parseFix(sourse);
+            this.functions = GcodeFixer.fix.functions;
+            this.head = GcodeFixer.fix.head;
+            this.end = GcodeFixer.fix.end;
+
+            if(this.input){
+                this.output = GcodeFixer.process(this.input);
+            }
+        }
     }
 });
 
@@ -75,7 +129,7 @@ if (typeof window.FileReader === 'undefined') {
     state.className = 'fail';
 } else {
     state.className = 'success';
-    state.innerHTML = 'Киньте файли сюди';
+    state.innerHTML = 'Киньте файли сюди iso файл і файл CNC по черзі';
 }
 
 holder.ondragover = function() {
@@ -95,13 +149,21 @@ holder.ondrop = function(e) {
 
         var re = /(?:\.([^.]+))?$/;
         var ext = re.exec(file.name.toLowerCase())[1];
-        if (ext === 'iso' || ext === 'cnc') {
+        if (ext === 'cnc') {
             var fileReader = new FileReader();
             fileReader.readAsText(file);
             fileReader.onload = function() {
-                vueApp.onFile(fileReader.result);
+                vueApp.onCncFile(fileReader.result);
+            };
+        } else if (ext === 'iso') {
+            var fileReader = new FileReader();
+            fileReader.readAsText(file);
+            fileReader.onload = function() {
+                vueApp.onIsoFile(fileReader.result);
             };
         }
+
+
     });
     return false;
 };
