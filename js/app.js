@@ -129,7 +129,7 @@ if (typeof window.FileReader === 'undefined') {
     state.className = 'fail';
 } else {
     state.className = 'success';
-    state.innerHTML = 'Киньте файли сюди iso файл і файл CNC по черзі';
+    state.innerHTML = 'Киньте сюди по черзі ISO і CNC файли';
 }
 
 holder.ondragover = function() {
