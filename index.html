@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="style.css">
+  <title>Dji photos 3d visualizer</title>
+</head>
+<body>
+<div id="app">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div id="holder">
+          <div id="status">File API &amp; FileReader API not supported</div>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-4">
+        <pre>{{input}}</pre>
+      </div>
+      <div class="col-4">
+        <pre>{{output}}</pre>
+      </div>
+      <div class="col-4">
+        <pre id="fix">
+G40
+G08
+G90
+
+
+S101 T2=1 T7=2 T8=2
+G04 F1000
+S101 T2=1 T7=0.7 T8=2
+S305
+G71
+G90
+P1=120,P2=10,P3=10,P4=10,P6=10
+G00 Z=P1
+G00 X2 Y2
+G92 X0 Y0
+GO*
+
+
+G00 Z=P1
+G00 X0 Y0
+G92
+M107 S1
+M107 S3
+M30
+
+
+
+N1900
+S101 T2=1 T7=0.5 T8=2
+M107 S3
+G0 Z=P3
+S305
+M02
+
+N1901
+S101 T2=1 T7=0.5 T8=2
+M107 S3
+G90
+G0 Z=P2
+S305
+
+N2000 (* PIERCING)
+G08
+S302 T2=3 T3=0
+G1 Z=-P3
+M107 S3
+S201 T1=4000 T2=3 T3=3 T4=1500 T5=190 T6=85  T7=4 T8=2
+S306 T2=2 T3=0
+S201 T1=4000 T2=3 T3=3 T4=1500 T5=190 T6=85  T7=4 T8=2
+M02
+
+
+N1002
+S302 T2=0.8 T3=-3
+G1 Z=-P3
+M107 S3
+S301 T2=0.8 T3=-3
+M1030
+S101 T2=3 T3=1 T4=1200 T7=15 T8=2
+G04 F800
+P5=200
+M02
+
+N1003
+S302 T2=0.8 T3=-3
+G1 Z=-P3
+M107 S3
+S301 T2=0.8 T3=-3
+M1030
+S101 T2=3 T3=1 T4=1200 T7=15 T8=2
+G04 F800
+P5=200
+M02
+        </pre>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>
