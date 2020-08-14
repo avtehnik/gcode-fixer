@@ -10,31 +10,50 @@ GcodeFixer = {
         parts.push(this.fix.head);
         parts.push(this.fixSource(sourse));
         parts.push(this.fix.end);
-        parts.push( Object.values(this.fix.functions).join("\n"));
+        parts.push("\n\n" + Object.values(this.fix.functions).join("\n\n"));
         return parts.join("\n");
     },
 
     fixSource: function(sourse) {
 
-        var page = 1;
+        var page = 5001;
         var result = [];
         var lines = sourse.split("\n");
-
         lines.forEach(function(line) {
 
             var code = line.substring(0, 1);
-
-            if (code === 'G' && line.substring(0, 3) === 'G00') {
-                result.push('N500' + page + ' P200=500' + page + '');
+            var subcode = line.substring(0, 3);
+            if (subcode === 'G00') {
+                result.push('N' + page.toString() + ' P200=' + page.toString());
+                result.push(line);//'холостий хід'
+                result.push('Z=P6');
+                result.push('G90');// - абсолютні координати
+                result.push('G08');// - блокування переміщення
                 page++;
+            } else if (subcode === 'G41') {
+                result.push('Q2000');//'пробивка'
+                result.push('Q1002');//'пробивка'
+                result.push('G41 D1');
+                result.push('F=P5');
+                result.push('G09');
+            } else if (subcode === '(Se') {
+                result.push("\n" + line);
+            } else if (subcode === 'G40') {
+                result.push('G08');// - завершення кадру
+                result.push('S101 T2=1');
                 result.push(line);
+                result.push('Q1901');
+            } else if (code === '%') {
+                return;
+            } else if (['G21', 'G90', 'G92', 'M08', 'M07'].includes(subcode)) {
+                return;
             } else if (code === 'F') {
                 let func = line;
                 let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
                 if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
                     result.push(funcIndex.replace('N', 'Q'));
                 } else {
-                    result.push(line);
+                    //result.push(line);
                 }
             } else {
                 result.push(line);
@@ -81,7 +100,7 @@ GcodeFixer = {
 
         var strings = string.split("\n");
 
-        var newArr =  strings.map(function(line) {
+        var newArr = strings.map(function(line) {
             return line.trim();
         });
 
@@ -104,7 +123,7 @@ var vueApp = new Vue({
     methods: {
         onCncFile(sourse) {
             this.input = sourse;
-            if(this.head){
+            if (this.head) {
                 this.output = GcodeFixer.process(sourse);
             }
         },
@@ -115,7 +134,7 @@ var vueApp = new Vue({
             this.head = GcodeFixer.fix.head;
             this.end = GcodeFixer.fix.end;
 
-            if(this.input){
+            if (this.input) {
                 this.output = GcodeFixer.process(this.input);
             }
         }
