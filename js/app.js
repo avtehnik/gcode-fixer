@@ -14,11 +14,28 @@ GcodeFixer = {
         return parts.join("\n");
     },
 
+    parseGVariables: function(line) {
+        const regex = /(([GXYIJ])(\-?[0-9]{1,5}\.[0-9]{1,3}))/g;
+        const found = line.match(regex);
+        var vars = {};
+        found.forEach(function(variable) {
+            var varName = variable.substring(0, 1).toUpperCase();
+            vars[varName] = parseFloat(variable.replace(varName, ''));
+        })
+        return vars;
+    },
+
+    formatCoordinate: function(num) {
+        return Math.round(num * 1000) / 1000
+    },
+
     fixSource: function(sourse) {
 
         var page = 5001;
+        var seq = 1;
         var result = [];
         var lines = sourse.split("\n");
+        var lastPosition = {x: null, y: null};
         lines.forEach(function(line) {
 
             var code = line.substring(0, 1);
@@ -30,6 +47,84 @@ GcodeFixer = {
                 result.push('G90');// - абсолютні координати
                 result.push('G08');// - блокування переміщення
                 page++;
+                let vars = GcodeFixer.parseGVariables(line);
+
+                if (vars['X']) {
+                    lastPosition.x = vars['X'];
+                }
+
+                if (vars['Y']) {
+                    lastPosition.y = vars['Y'];
+                }
+
+            } else if (subcode === 'M02') {
+                return;
+            } else if (subcode === 'G01') {
+
+                let vars = GcodeFixer.parseGVariables(line);
+
+                if (vars['X']) {
+                    lastPosition.x = vars['X'];
+                }
+
+                if (vars['Y']) {
+                    lastPosition.y = vars['Y'];
+                }
+
+                result.push(subcode + 'X' + lastPosition.x + 'Y' + lastPosition.y);
+
+            } else if (subcode === 'G02' || subcode === 'G03') {
+                let vars = GcodeFixer.parseGVariables(line);
+
+                if (vars['X']) {
+                    lastPosition.x = vars['X'];
+                }
+                if (vars['Y']) {
+                    lastPosition.y = vars['Y'];
+                }
+
+
+                let x = (vars['X'] || lastPosition.x);
+                let y = (vars['Y'] || lastPosition.y);
+                let i = null;
+                let j = null;
+
+                if (vars['I'] == vars['X']) {
+                    if (subcode == 'G03') {
+                        i = GcodeFixer.formatCoordinate(vars['J'] - y);
+                    } else {
+                        i = GcodeFixer.formatCoordinate(y - vars['J']);
+                    }
+                    j = 0;
+                } else if (vars['Y'] == vars['J']) {
+                    i = 0;
+                    if (subcode == 'G03') {
+                        j = GcodeFixer.formatCoordinate(x - vars['I']);
+                    } else {
+                        j = GcodeFixer.formatCoordinate(vars['I'] - x);
+                    }
+                } else {
+                    i = GcodeFixer.formatCoordinate(vars['I'] - x);
+
+                    if (subcode == 'G03') {
+
+                        if(i==0){
+                            j = GcodeFixer.formatCoordinate(y - vars['J']);
+                        }else {
+                            j = GcodeFixer.formatCoordinate(vars['J'] - y );
+                        }
+
+                    } else {
+                        j = GcodeFixer.formatCoordinate(vars['J'] - y);
+                    }
+                }
+
+
+                if (isNaN(i)) {
+                    console.log(line, vars, x, y);
+                }
+                result.push(subcode + 'X' + x + 'Y' + y + 'I' + i + 'J' + j);
+            } else if (subcode === 'G03') {
             } else if (subcode === 'G41') {
                 result.push('Q2000');//'пробивка'
                 result.push('Q1002');//'пробивка'
@@ -37,7 +132,8 @@ GcodeFixer = {
                 result.push('F=P5');
                 result.push('G09');
             } else if (subcode === '(Se') {
-                result.push("\n" + line);
+                result.push("\n" + '(*Seq '+seq+')');
+                seq++;
             } else if (subcode === 'G40') {
                 result.push('G08');// - завершення кадру
                 result.push('S101 T2=1');
@@ -51,7 +147,7 @@ GcodeFixer = {
                 let func = line;
                 let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
                 if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
-                    result.push(funcIndex.replace('N', 'Q'));
+                    result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
                 } else {
                     //result.push(line);
                 }
@@ -63,6 +159,7 @@ GcodeFixer = {
         });
 
         return result.join("\n");
+       // return result.slice(0, 500).join("\n");
     },
 
     parseFix: function(fix) {
