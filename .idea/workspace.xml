@@ -70,7 +70,7 @@
       <option name="presentableId" value="Default" />
       <updated>1597169876998</updated>
       <workItem from="1597169878379" duration="12592000" />
-      <workItem from="1597253254656" duration="17045000" />
+      <workItem from="1597253254656" duration="30498000" />
     </task>
     <servers />
   </component>
@@ -78,9 +78,17 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="456" y="141" key="CommitChangelistDialog2" timestamp="1597544375467">
+      <screen x="45" y="23" width="1635" height="1027" />
+    </state>
+    <state x="456" y="141" key="CommitChangelistDialog2/45.23.1635.1027@45.23.1635.1027" timestamp="1597544375467" />
     <state x="404" y="129" width="1432" height="827" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog" timestamp="1597189683905">
       <screen x="43" y="23" width="1637" height="1027" />
     </state>
     <state x="404" y="129" width="1432" height="827" key="com.intellij.history.integration.ui.views.DirectoryHistoryDialog/43.23.1637.1027@43.23.1637.1027" timestamp="1597189683905" />
+    <state x="529" y="250" width="670" height="676" key="search.everywhere.popup" timestamp="1597789608421">
+      <screen x="42" y="23" width="1638" height="1027" />
+    </state>
+    <state x="529" y="250" width="670" height="676" key="search.everywhere.popup/42.23.1638.1027@42.23.1638.1027" timestamp="1597789608421" />
   </component>
 </project>
