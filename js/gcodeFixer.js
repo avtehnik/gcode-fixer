@@ -5,7 +5,9 @@ GcodeFixer = {
         functions: {}
     },
     settings: {
-        piercing: true
+        piercing: true,
+        // limit: 1024
+        limit: 1024* 240
     },
 
     process: function(sourse, settings) {
@@ -98,7 +100,7 @@ GcodeFixer = {
 
                 let subResult = result.join("\n");
 
-                if (subResult.length > (1024 * 240)) {
+                if (subResult.length > GcodeFixer.settings.limit) {
                     parts.push(subResult);
                     result = [];
                 }
@@ -149,11 +151,12 @@ GcodeFixer = {
 
                 if (vars['I'] == x1) {
                     if (subcode == 'G03') {
-                        i = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                        j = GcodeFixer.formatCoordinate(y1 - vars['J']);
+                        i = 0;
                     } else {
                         i = GcodeFixer.formatCoordinate(y1 - vars['J']);
+                        j = 0;
                     }
-                    j = 0;
                 } else if (vars['Y'] == vars['J']) {
                     i = 0;
                     if (subcode == 'G03') {
@@ -163,7 +166,6 @@ GcodeFixer = {
                     }
                 } else {
                     i = GcodeFixer.formatCoordinate(vars['I'] - x1);
-
                     if (subcode == 'G03') {
                         if (i == 0) {
                             j = GcodeFixer.formatCoordinate(y1 - vars['J']);
@@ -190,7 +192,6 @@ GcodeFixer = {
 
                 } else if (subcode === 'G03') {
                     angle -= 0.05;
-
                 }
 
                 var fixedPoint = GcodeFixer.toPolar({x: vars['I'], y: vars['J']}, angle, dist);
@@ -208,7 +209,6 @@ GcodeFixer = {
                 result.push('Q2000');//'пробивка'
 
                 if (GcodeFixer.settings.piercing) {
-                    console.log('piercing');
                     result.push('Q1002');//'пробивка'
                 }
 

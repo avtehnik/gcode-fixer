@@ -101,16 +101,18 @@ var vueApp = new Vue({
             }.bind(this));
             localStorage['isoFiles'] = JSON.stringify(this.isoFiles);
         },
-
+        deleteIsoFile: function(isoFile) {
+            if (confirm('Ви точно хочете видалити ' + isoFile.name + '?')) {
+                Vue.delete(this.isoFiles, isoFile.name);
+            }
+        },
         downloadPart: function(downloadPart) {
-
             var blob = new Blob([downloadPart.data], {type: 'application/iso'});
             var link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = downloadPart.name + '.iso';
             link.click();
             URL.revokeObjectURL(link.href)
-
         }
     },
     computed: {

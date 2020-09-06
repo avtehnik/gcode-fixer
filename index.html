@@ -26,10 +26,8 @@
         <h5>Шаблони</h5>
 
         <div class="isoFilesList">
-          <div class="m-1" v-for="template in isoFiles" :value="template.name">{{template.name}}<span>{{template.updated}}</span></div>
+          <div class="m-1" v-for="isoFile in isoFiles" :value="isoFile.name">{{isoFile.name}}<span>{{isoFile.updated}}</span>  <span v-on:click="deleteIsoFile(isoFile)" class="delete-icon">🗑️</span> </div>
         </div>
-
-        <button class="mt-5" v-on:click="clearIsoFiles">Очистити</button>
         <!--        <h5>Шаблон</h5>-->
         <!--        <h6>Шапка</h6>-->
         <!--        <pre>{{head}}</pre>-->
@@ -64,7 +62,7 @@
 
 
         <h6 class="mt-3">Вихідний код:</h6>
-        <!--        <textarea>{{output}}</textarea>-->
+        <pre>{{output}}</pre>
 
         <div v-for="download in downloads">
           <button class="m-1" v-on:click="downloadPart(download)">Частина {{download.title}}</button>

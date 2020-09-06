@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ab6f1b6c-1618-4aeb-a30f-c4c1b8b702d7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/js/gcodeFixer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/gcodeFixer.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/gcodeFixer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -74,7 +74,7 @@
       <updated>1597169876998</updated>
       <workItem from="1597169878379" duration="12592000" />
       <workItem from="1597253254656" duration="31385000" />
-      <workItem from="1599063331065" duration="12589000" />
+      <workItem from="1599063331065" duration="16453000" />
     </task>
     <servers />
   </component>

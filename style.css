@@ -39,3 +39,7 @@ html, body {
     margin-left: 5px;
     font-size: 10px;
 }
+
+.delete-icon{
+    cursor:  pointer;
+}
