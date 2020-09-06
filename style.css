@@ -28,3 +28,14 @@ html, body {
 #app {
     height: 100%;
 }
+
+.isoFilesList{
+    border: 1px solid black;
+    height: 100px;
+    width: 300px;
+    overflow: scroll;
+}
+.isoFilesList span{
+    margin-left: 5px;
+    font-size: 10px;
+}
