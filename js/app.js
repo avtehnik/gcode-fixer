@@ -70,6 +70,9 @@ var vueApp = new Vue({
             if (this.input) {
                 setTimeout(function() {
                     GcodeFixer.process(this.input, this.settings).forEach(function(part, key) {
+                        if(key==0){
+                            this.output = part;
+                        }
                         var data = [];
                         data.push(this.head);
                         data.push(part);
