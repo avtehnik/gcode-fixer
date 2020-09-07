@@ -70,7 +70,7 @@ var vueApp = new Vue({
             if (this.input) {
                 setTimeout(function() {
                     GcodeFixer.process(this.input, this.settings).forEach(function(part, key) {
-                        if(key==0){
+                        if (key == 0) {
                             this.output = part;
                         }
                         var data = [];
@@ -98,11 +98,13 @@ var vueApp = new Vue({
 
             }
         },
-        clearIsoFiles: function() {
-            Object.keys(this.isoFiles).forEach(function(name) {
-                Vue.delete(this.isoFiles, name)
-            }.bind(this));
-            localStorage['isoFiles'] = JSON.stringify(this.isoFiles);
+        deleteIsoFiles: function() {
+            if (confirm('Ви точно хочете видалити всі шаблони')) {
+                Object.keys(this.isoFiles).forEach(function(name) {
+                    Vue.delete(this.isoFiles, name)
+                }.bind(this));
+                localStorage['isoFiles'] = JSON.stringify(this.isoFiles);
+            }
         },
         deleteIsoFile: function(isoFile) {
             if (confirm('Ви точно хочете видалити ' + isoFile.name + '?')) {
