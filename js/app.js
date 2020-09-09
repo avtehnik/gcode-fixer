@@ -64,6 +64,7 @@ var vueApp = new Vue({
         onSelectIsoFile: function() {
             this.downloads = [];
             this.functions = this.template.functions;
+            GcodeFixer.fix.functions = this.template.functions;
             this.head = this.template.head;
             this.end = this.template.end;
 

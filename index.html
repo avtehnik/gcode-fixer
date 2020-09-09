@@ -29,6 +29,8 @@
           <div class="m-1" v-for="isoFile in isoFiles" :value="isoFile.name">{{isoFile.name}}<span>{{isoFile.updated}}</span>  <span v-on:click="deleteIsoFile(isoFile)" class="delete-icon">🗑️</span> </div>
           <div class="m-1">Видалити всі <span v-on:click="deleteIsoFiles" class="delete-icon">🗑️</span> </div>
         </div>
+<!--        <h6>Вхідний код</h6>-->
+<!--        <pre>{{input}}</pre>-->
         <!--        <h5>Шаблон</h5>-->
         <!--        <h6>Шапка</h6>-->
         <!--        <pre>{{head}}</pre>-->
@@ -44,8 +46,6 @@
 
       </div>
       <!--      <div class="col-4">-->
-      <!--        <h6>Вхідний код</h6>-->
-      <!--        <pre>{{input}}</pre>-->
       <!--      </div>-->
       <div class="col-6">
         <h5>Шаблон</h5>
