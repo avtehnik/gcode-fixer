@@ -43,3 +43,8 @@ html, body {
 .delete-icon{
     cursor:  pointer;
 }
+
+td{
+    text-align: center;
+    padding: 3px;
+}

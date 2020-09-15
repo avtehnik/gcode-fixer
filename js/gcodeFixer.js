@@ -2,8 +2,9 @@ GcodeFixer = {
     fix: {
         head: null,
         end: null,
-        functions: {}
+        functions: {},
     },
+    usedFunctions: {},
     settings: {
         piercing: true,
         // limit: 1024
@@ -13,7 +14,7 @@ GcodeFixer = {
     process: function(sourse, settings) {
 
         this.settings.piercing = settings.piercing;
-
+        this.usedFunctions = {};
         return this.fixSource(sourse);
         var parts = [];
         parts.push(this.fix.head);
@@ -47,7 +48,8 @@ GcodeFixer = {
     },
 
     parseGVariables: function(line) {
-        const regex = /(([GXYIJ])(\-?[0-9]{1,5}\.[0-9]{1,3}))/g;
+        // const regex = /(([GXYIJ])(\-?[0-9]{1,5}\.[0-9]{1,3}))/g;
+        const regex = /([GXYIJ])(-?\d+(\.\d*)?)/g;
         const found = line.match(regex);
         var vars = {};
         if (found) {
@@ -243,7 +245,11 @@ GcodeFixer = {
                 let func = line;
                 let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
                 if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
-                    result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
+                    if (!GcodeFixer.usedFunctions.hasOwnProperty(funcIndex)) {
+                        GcodeFixer.usedFunctions[funcIndex] = 0;
+                    }
+                    GcodeFixer.usedFunctions[funcIndex]++;
+                    result.push(funcIndex.replace('N', 'Q') + ' FUNCTION');//--------------------------------------------tmp disable
                 } else {
                     //result.push(line);
                 }

@@ -24,10 +24,11 @@ var vueApp = new Vue({
             updated: ""
         },
         settings: {
+            debug: false,
             piercing: true
         },
-        downloads: []
-
+        downloads: [],
+        usedFunctions: {}
     },
     methods: {
         onCncFile(sourse, name) {
@@ -63,6 +64,7 @@ var vueApp = new Vue({
 
         onSelectIsoFile: function() {
             this.downloads = [];
+            this.usedFunctions = {};
             this.functions = this.template.functions;
             GcodeFixer.fix.functions = this.template.functions;
             this.head = this.template.head;
@@ -85,7 +87,12 @@ var vueApp = new Vue({
                             title: (key + 1) + ' ' + Math.floor(part.length / 1024) + 'kb',
                             name: this.inputName + '_part-' + (key + 1)
                         });
+
+
                     }.bind(this));
+
+                    this.usedFunctions = GcodeFixer.usedFunctions;
+
                     //
                     // parts.push(this.fix.head);
                     // parts.push(this.fixSource(sourse));

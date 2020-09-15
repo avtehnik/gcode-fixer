@@ -22,15 +22,15 @@
     <h1>{{inputName}}</h1>
 
     <div class="row">
-      <div class="col-6">
+      <div class="col-4">
         <h5>Шаблони</h5>
 
         <div class="isoFilesList">
-          <div class="m-1" v-for="isoFile in isoFiles" :value="isoFile.name">{{isoFile.name}}<span>{{isoFile.updated}}</span>  <span v-on:click="deleteIsoFile(isoFile)" class="delete-icon">🗑️</span> </div>
-          <div class="m-1">Видалити всі <span v-on:click="deleteIsoFiles" class="delete-icon">🗑️</span> </div>
+          <div class="m-1" v-for="isoFile in isoFiles" :value="isoFile.name">{{isoFile.name}}<span>{{isoFile.updated}}</span> <span v-on:click="deleteIsoFile(isoFile)" class="delete-icon">🗑️</span></div>
+          <div class="m-1">Видалити всі <span v-on:click="deleteIsoFiles" class="delete-icon">🗑️</span></div>
         </div>
-<!--        <h6>Вхідний код</h6>-->
-<!--        <pre>{{input}}</pre>-->
+        <!--        <h6>Вхідний код</h6>-->
+        <pre v-show="settings.debug">{{input}}</pre>
         <!--        <h5>Шаблон</h5>-->
         <!--        <h6>Шапка</h6>-->
         <!--        <pre>{{head}}</pre>-->
@@ -47,7 +47,7 @@
       </div>
       <!--      <div class="col-4">-->
       <!--      </div>-->
-      <div class="col-6">
+      <div class="col-4">
         <h5>Шаблон</h5>
 
         <div>
@@ -58,16 +58,38 @@
         </div>
 
         <div>
-          Пробивка <input type="checkbox" id="checkbox" v-model="settings.piercing">
+          Пробивка <input type="checkbox" id="checkbox" v-model="settings.piercing"><br>
+          <!--          debug <input type="checkbox" id="checkbox" v-model="settings.debug">-->
         </div>
-
-
         <h6 class="mt-3">Вихідний код:</h6>
 
         <div v-for="download in downloads">
           <button class="m-1" v-on:click="downloadPart(download)">Частина {{download.title}}</button>
         </div>
-<!--        <pre>{{output}}</pre>-->
+        <textarea v-show="settings.debug">{{output}}</textarea>
+        <pre v-show="settings.debug">{{output}}</pre>
+      </div>
+      <div class="col-4">
+        <h5>Автозаміна по F00XX</h5>
+        <div>
+          Замінюється F0001 на N1001, в файлах шаблонів мають бути відповідні підпрограми в діапазоні N10XX
+        </div>
+        <br>
+        <div>
+          Наявні підпрограми:
+          <table border="1">
+            <tr>
+              <td>назва блоку</td>
+              <td>посилання</td>
+              <td>кількіст замін</td>
+            </tr>
+            <tr v-for="funcName in Object.keys(functions)">
+              <td>{{funcName}}</td><td>{{funcName.replace('N', 'Q')}} </td><td>{{(usedFunctions.hasOwnProperty(funcName) ? usedFunctions[funcName]:0 )}}</td>
+            </tr>
+          </table>
+        </div>
+
+
       </div>
     </div>
   </div>
