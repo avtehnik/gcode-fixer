@@ -81,7 +81,7 @@
             <tr>
               <td>назва блоку</td>
               <td>посилання</td>
-              <td>кількіст замін</td>
+              <td>кількість замін</td>
             </tr>
             <tr v-for="funcName in Object.keys(functions)">
               <td>{{funcName}}</td><td>{{funcName.replace('N', 'Q')}} </td><td>{{(usedFunctions.hasOwnProperty(funcName) ? usedFunctions[funcName]:0 )}}</td>
