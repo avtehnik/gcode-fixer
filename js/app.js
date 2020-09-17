@@ -79,8 +79,8 @@ var vueApp = new Vue({
                         var data = [];
                         data.push(this.head);
                         data.push(part);
-                        data.push(Object.values(this.functions).join("\n"));
                         data.push(this.end);
+                        data.push(Object.values(this.functions).join("\n"));
 
                         this.downloads.push({
                             data: data.join("\n"),

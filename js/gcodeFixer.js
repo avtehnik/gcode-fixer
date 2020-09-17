@@ -249,7 +249,7 @@ GcodeFixer = {
                         GcodeFixer.usedFunctions[funcIndex] = 0;
                     }
                     GcodeFixer.usedFunctions[funcIndex]++;
-                    result.push(funcIndex.replace('N', 'Q') + ' FUNCTION');//--------------------------------------------tmp disable
+                    result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
                 } else {
                     //result.push(line);
                 }
