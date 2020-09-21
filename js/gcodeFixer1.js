@@ -39,11 +39,11 @@ GcodeFixer = {
         return Math.sqrt(dx * dx + dy * dy);
     },
 
-    toPolar: function(point, angle, r) {
-        var direct = GcodeFixer.degToRad(angle);
+    toPolar: function(point, direct, dist) {
+        var direct = GcodeFixer.degToRad(direct);
         return {
-            'x': (r * Math.cos(direct)) + point.x,
-            'y': (r * Math.sin(direct)) + point.y,
+            'x': ((dist * Math.cos(direct)) + point.x),
+            'y': ((dist * Math.sin(direct)) + point.y),
         }
     },
 
@@ -93,7 +93,6 @@ GcodeFixer = {
         var lines = sourse.split("\n");
         var lastPosition = {x: null, y: null};
         var lastSubcode = null;
-        var laterEnabled = false;
         // lines.slice(0, 20).forEach(function(line, index) {
         lines.forEach(function(line, index) {
 
@@ -102,21 +101,19 @@ GcodeFixer = {
             if (subcode === 'G00') {
 
                 let subResult = result.join("\n");
-                let vars = GcodeFixer.parseGVariables(line);
 
                 if (subResult.length > GcodeFixer.settings.limit) {
                     parts.push(subResult);
                     result = [];
                 }
-                let x = vars['X'] || GcodeFixer.lastPosition.x;
-                let y = vars['Y'] || GcodeFixer.lastPosition.y;
 
                 result.push('N' + page.toString() + ' P200=' + page.toString());
-                result.push(subcode + 'X' + x + 'Y' + y);
+                result.push(line);//'холостий хід'
                 result.push('Z=P6');
                 result.push('G90');// - абсолютні координати
                 result.push('G08');// - блокування переміщення
                 page++;
+                let vars = GcodeFixer.parseGVariables(line);
                 GcodeFixer.updateLastPosition(vars);
                 lastSubcode = subcode;
 
@@ -130,101 +127,120 @@ GcodeFixer = {
 
             } else if (subcode === 'G02' || subcode === 'G03') {
                 let vars = GcodeFixer.parseGVariables(line);
+
+
+                // console.log(GcodeFixer.lastPosition.x, GcodeFixer.lastPosition.y, vars['I'], vars['J'], {
+                //     i: GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.x - vars['I']),
+                //     j: GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.y - vars['J'])
+                // })
+
                 let x = vars['X'] || GcodeFixer.lastPosition.x;
                 let y = vars['Y'] || GcodeFixer.lastPosition.y;
-                let x1 = GcodeFixer.lastPosition.x;
-                let y1 = GcodeFixer.lastPosition.y;
-                let j = GcodeFixer.formatCoordinate(vars['J'] - y1);
-                let i = GcodeFixer.formatCoordinate(vars['I'] - x1);
-                lastSubcode = subcode;
-                let x2;
-                let y2;
+
+                // if (lastSubcode == 'G00' || (lastSubcode == 'G01') ) {
+                //     var x1 = GcodeFixer.lastPosition.x;
+                //     var y1 = GcodeFixer.lastPosition.y;
+                // } else {
+                //     var x1 = x;
+                //     var y1 = y;
+                // }
+                var x1 = GcodeFixer.lastPosition.x;
+                var y1 = GcodeFixer.lastPosition.y;
+
+                let i = null;
+                let j = null;
+
+                // console.log(subcode, lastSubcode);
+
+                j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                i = GcodeFixer.formatCoordinate(vars['I'] - x1);
+
+                // if (subcode == 'G03') {
+                // } else {
+                //     j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                //     i = GcodeFixer.formatCoordinate(vars['I'] - x1);
+                // }
 
 
-                if (!vars['X'] && !vars['Y']) {
+                // if (vars['I'] == x1) {
+                //     if (subcode == 'G03') {
+                //         j = GcodeFixer.formatCoordinate(y1 - vars['J']);
+                //         i = GcodeFixer.formatCoordinate(x1 - vars['I']);
+                //     } else {
+                //         i = GcodeFixer.formatCoordinate(vars['I'] - x1);
+                //         j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                //     }
+                // } else if (vars['Y'] == vars['J']) {
+                //     i = 0;
+                //     if (subcode == 'G03') {
+                //         j = GcodeFixer.formatCoordinate(x1 - vars['I']);
+                //     } else {
+                //         i = GcodeFixer.formatCoordinate(vars['I'] - x1);
+                //         j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                //     }
+                // } else {
+                //     i = GcodeFixer.formatCoordinate(vars['I'] - x1);
+                //     if (subcode == 'G03') {
+                //         if (i == 0) {
+                //             j = GcodeFixer.formatCoordinate(y1 - vars['J']);
+                //         } else {
+                //             j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                //         }
+                //
+                //     } else {
+                //         j = GcodeFixer.formatCoordinate(vars['J'] - y1);
+                //     }
+                // }
+                // console.log(subcode, lastSubcode, i, j);
 
-                    var angle = GcodeFixer.vectorAngle({x: vars['I'], y: vars['J']}, {x: GcodeFixer.lastPosition.x, y: GcodeFixer.lastPosition.y});
-
-                    var dist = GcodeFixer.distance({x: vars['I'], y: vars['J']}, {x: x, y: y});
-
-                    // console.log(angle, dist,{cx:x, cy:y}, {x: GcodeFixer.lastPosition.x, y: GcodeFixer.lastPosition.y});
-
-                    if (lastSubcode === 'G02') {
-                        angle += 0.05;
-
-                    } else if (lastSubcode === 'G03') {
-                        angle -= 0.05;
-                    }
-
-                    var fixedPoint = GcodeFixer.toPolar({x: vars['I'], y: vars['J']}, angle, dist);
-
-
-                    if ((fixedPoint.x - x) < (fixedPoint.y - y)) {
-                        if (fixedPoint.x > x) {
-                            fixedPoint.x = x + 0.02
-                        } else {
-                            fixedPoint.x = x - 0.02
-                        }
-                        fixedPoint.y = y;
-                    } else {
-                        if (fixedPoint.y > y) {
-                            fixedPoint.y = y + 0.02
-                        } else {
-                            fixedPoint.y = y - 0.02
-                        }
-                        fixedPoint.x = x;
-                    }
-                    x2 = vars['X'] || GcodeFixer.formatCoordinate(fixedPoint.x);
-                    y2 = vars['Y'] || GcodeFixer.formatCoordinate(fixedPoint.y);
-                    if (index < 30) {
-                        console.table(x2, y2, angle, dist, vars['I'], vars['J']);
-                        console.table(x, y, angle, dist, vars['I'], vars['J']);
-                        console.table(0, 0, 0, 0);
-                    }
-
-                } else {
-                    x2 = x;
-                    y2 = y;
-
+                if (isNaN(i)) {
+                    console.log(line, vars, x, y);
                 }
+                lastSubcode = subcode;
+
+                // var angle = GcodeFixer.vectorAngle({x: vars['I'], y: vars['J']}, {x: x, y: y});
+                // var dist = GcodeFixer.distance({x: x, y: y}, {x: vars['I'], y: vars['J']});
+                //
+                // if (subcode === 'G02') {
+                //     angle += 0.05;
+                //
+                // } else if (subcode === 'G03') {
+                //     angle -= 0.05;
+                // }
+                //
+                // var fixedPoint = GcodeFixer.toPolar({x: vars['I'], y: vars['J']}, angle, dist);
+                //
+                // x2 = GcodeFixer.formatCoordinate(fixedPoint.x);
+                // y2 = GcodeFixer.formatCoordinate(fixedPoint.y);
+                //
+                // console.log({x: x, y: y}, {x: x2, y: y2});
 
                 GcodeFixer.updateLastPosition(vars);
 
+                result.push(subcode + 'X' + x + 'Y' + y + 'I' + i + 'J' + j);
+            } else if (subcode === 'G41') {
+                // console.log('g41')
+                result.push('Q2000');//'пробивка'
 
-                result.push(subcode + 'X' + x2 + 'Y' + y2 + 'I' + i + 'J' + j);
-            } else if (['G41', 'M07'].includes(subcode)) {
-                if (!laterEnabled) {
-                    result.push('Q2000');//'пробивка'
-                    if (GcodeFixer.settings.piercing) {
-                        result.push('Q1002');//'пробивка'
-                    }
-                    result.push('G41 D1');
-                    result.push('F=P5');
-                    result.push('G09');
+                if (GcodeFixer.settings.piercing) {
+                    result.push('Q1002');//'пробивка'
                 }
-                laterEnabled = true;
-                // result.push('G08');//'пробивка'
-                if (subcode.charAt(0) == 'G') {
-                    lastSubcode = subcode;
-                }
+
+                result.push('G41 D1');
+                result.push('F=P5');
+                result.push('G09');
             } else if (subcode === '(Se') {
                 result.push("\n" + '(*Seq ' + seq + ')');
                 seq++;
-            } else if (['G40', 'M08'].includes(subcode)) {
-                if (laterEnabled) {
-                    result.push('G08');// - завершення кадру
-                    result.push('S101 T2=1');
-                    result.push('G40');
-                    result.push('Q1901');
-                }
-                laterEnabled = false;
-                if (subcode.charAt(0) == 'G') {
-                    lastSubcode = subcode;
-                }
+            } else if (['G40', 'G90', 'G92', 'M08', 'M07'].includes(subcode)) {
+                result.push('G08');// - завершення кадру
+                result.push('S101 T2=1');
+                result.push(line);
+                result.push('Q1901');
             } else if (code === '%') {
 
-            } else if (['G21', 'G90', 'G92', 'G08'].includes(subcode)) {
-                lastSubcode = subcode;
+            } else if (['G21', 'G90', 'G92', 'M08', 'M07'].includes(subcode)) {
+
             } else if (code === 'F') {
                 let func = line;
                 let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
@@ -325,38 +341,3 @@ GcodeFixer = {
         return newArr.join("\n");
     }
 };
-//
-//
-// let x = 24.587;
-// let y = 19.596;
-//
-// let cx = 26.178;
-// let cy = 18.005;
-//
-// var angle = GcodeFixer.vectorAngle({x: cx, y: cy}, {x: x, y: y});
-//
-// angle = angle - 0.75
-// var dist = GcodeFixer.distance({x: cx, y: cy}, {x: x, y: y});
-//
-// var fixedPoint = GcodeFixer.toPolar({x: cx, y: cy}, angle, dist);
-//
-//
-// if ((fixedPoint.x - x) < (fixedPoint.y - y)) {
-//     if (fixedPoint.x > x) {
-//         fixedPoint.x = x + 0.02
-//     } else {
-//         fixedPoint.x = x - 0.02
-//     }
-//     fixedPoint.y = y;
-// } else {
-//     if (fixedPoint.y > y) {
-//         fixedPoint.y = y + 0.02
-//     } else {
-//         fixedPoint.y = y - 0.02
-//     }
-//     fixedPoint.x = x;
-// }
-//
-//
-// console.log((fixedPoint.x - x), (fixedPoint.y - y));
-// console.log(angle, dist, {x: x, y: y}, {x: fixedPoint.x, y: fixedPoint.y});

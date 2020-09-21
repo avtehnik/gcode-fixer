@@ -73,14 +73,18 @@ var vueApp = new Vue({
             if (this.input) {
                 setTimeout(function() {
                     GcodeFixer.process(this.input, this.settings).forEach(function(part, key) {
-                        if (key == 0) {
-                            this.output = part;
-                        }
                         var data = [];
                         data.push(this.head);
+                        data.push("\n\n");
                         data.push(part);
+                        data.push("\n\n");
                         data.push(this.end);
+                        data.push("\n\n");
                         data.push(Object.values(this.functions).join("\n"));
+
+                        if (key == 0) {
+                            this.output = data.join("\n");
+                        }
 
                         this.downloads.push({
                             data: data.join("\n"),
