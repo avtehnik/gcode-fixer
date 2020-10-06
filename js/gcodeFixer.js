@@ -202,14 +202,14 @@ GcodeFixer = {
                         result.push(FinMemory);
                         FinMemory = null;
                     }else{
-                        result.push('Q1002');//'пробивка'
+                        result.push('Q1002');//'робочий різ'
                     }
                     result.push('G41 D1');
                     result.push('F=P5');
                     result.push('G09');
                 }
                 laterEnabled = true;
-                // result.push('G08');//'пробивка'
+                // result.push('G08');//
                 if (subcode.charAt(0) == 'G') {
                     lastSubcode = subcode;
                 }
