@@ -80,7 +80,7 @@ var vueApp = new Vue({
                         data.push("\n\n");
                         data.push(this.end);
                         data.push("\n\n");
-                        data.push(Object.values(this.functions).join("\n"));
+                        data.push(Object.values(this.functions).join("\n\n\n"));
 
                         if (key == 0) {
                             this.output = data.join("\n");
