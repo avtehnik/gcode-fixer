@@ -95,6 +95,7 @@ GcodeFixer = {
         var lastSubcode = null;
         var laterEnabled = false;
         // lines.slice(0, 20).forEach(function(line, index) {
+        var FinMemory;
         lines.forEach(function(line, index) {
 
             var code = line.substring(0, 1);
@@ -198,6 +199,10 @@ GcodeFixer = {
                     if (GcodeFixer.settings.piercing) {
                         result.push('Q1002');//'пробивка'
                     }
+                    if (FinMemory) {
+                        result.push(FinMemory);
+                        FinMemory = null;
+                    }
                     result.push('G41 D1');
                     result.push('F=P5');
                     result.push('G09');
@@ -233,7 +238,8 @@ GcodeFixer = {
                         GcodeFixer.usedFunctions[funcIndex] = 0;
                     }
                     GcodeFixer.usedFunctions[funcIndex]++;
-                    result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
+                    //result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
+                    FinMemory = funcIndex.replace('N', 'Q');
                 } else {
                     //result.push(line);
                 }
