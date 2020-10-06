@@ -195,13 +195,14 @@ GcodeFixer = {
                 result.push(subcode + 'X' + x2 + 'Y' + y2 + 'I' + i + 'J' + j);
             } else if (['G41', 'M07'].includes(subcode)) {
                 if (!laterEnabled) {
-                    result.push('Q2000');//'пробивка'
                     if (GcodeFixer.settings.piercing) {
-                        result.push('Q1002');//'пробивка'
+                        result.push('Q2000');//'пробивка'
                     }
                     if (FinMemory) {
                         result.push(FinMemory);
                         FinMemory = null;
+                    }else{
+                        result.push('Q1002');//'пробивка'
                     }
                     result.push('G41 D1');
                     result.push('F=P5');
