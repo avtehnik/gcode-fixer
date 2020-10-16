@@ -85,7 +85,7 @@ GcodeFixer = {
     },
 
     fixSource: function(sourse) {
-
+        var fIndex = 0;
         var parts = [];
         var page = 5001;
         var seq = 1;
@@ -94,12 +94,33 @@ GcodeFixer = {
         var lastPosition = {x: null, y: null};
         var lastSubcode = null;
         var laterEnabled = false;
+        var FinMemory = null;
         // lines.slice(0, 20).forEach(function(line, index) {
-        var FinMemory;
         lines.forEach(function(line, index) {
 
             var code = line.substring(0, 1);
             var subcode = line.substring(0, 3);
+            var nextCode = null;
+            var nextSubcode = null;
+            var nextLine = null;
+            var prevCode = null;
+            var prevSubcode = null;
+            var prevLine = null;
+
+            if (lines[index + 1]) {
+                nextCode = lines[index + 1].substring(0, 1);
+                nextSubcode = lines[index + 1].substring(0, 3);
+                nextLine = lines[index + 1];
+            }
+
+
+            if (lines[index - 1]) {
+                prevCode = lines[index - 1].substring(0, 1);
+                prevSubcode = lines[index - 1].substring(0, 3);
+                prevLine = lines[index - 1];
+            }
+
+
             if (subcode === 'G00') {
 
                 let subResult = result.join("\n");
@@ -198,10 +219,23 @@ GcodeFixer = {
                     if (GcodeFixer.settings.piercing) {
                         result.push('Q2000');//'пробивка'
                     }
-                    if (FinMemory) {
-                        result.push(FinMemory);
-                        FinMemory = null;
-                    }else{
+
+
+                    if(prevCode === 'F'){
+                        let func = GcodeFixer.funcForF(prevLine);
+                        if (func) {
+                            result.push(func);//'робочий різ'
+                        } else {
+                            result.push('Q1002');//'робочий різ'
+                        }
+                    } else if (nextCode === 'F') {
+                        let func = GcodeFixer.funcForF(nextLine);
+                        if (func) {
+                            result.push(func);//'робочий різ'
+                        } else {
+                            result.push('Q1002');//'робочий різ'
+                        }
+                    } else {
                         result.push('Q1002');//'робочий різ'
                     }
                     result.push('G41 D1');
@@ -232,18 +266,13 @@ GcodeFixer = {
             } else if (['G21', 'G90', 'G92', 'G08'].includes(subcode)) {
                 lastSubcode = subcode;
             } else if (code === 'F') {
-                let func = line;
-                let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
-                if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
-                    if (!GcodeFixer.usedFunctions.hasOwnProperty(funcIndex)) {
-                        GcodeFixer.usedFunctions[funcIndex] = 0;
-                    }
-                    GcodeFixer.usedFunctions[funcIndex]++;
-                    //result.push(funcIndex.replace('N', 'Q'));//--------------------------------------------tmp disable
-                    FinMemory = funcIndex.replace('N', 'Q');
-                } else {
-                    //result.push(line);
-                }
+                // fIndex++;
+                // let func = GcodeFixer.funcForF(line);
+                // if (func) {
+                //     FinMemory = func;
+                // } else {
+                //     //result.push(line);
+                // }
             } else if (['I', 'J'].includes(code)) {
                 let vars = GcodeFixer.parseGVariables(line);
                 GcodeFixer.updateLastPosition(GcodeFixer.parseGVariables(line));
@@ -297,6 +326,21 @@ GcodeFixer = {
         return parts;
         // return result.join("\n");
         // return result.slice(0, 500).join("\n");
+    },
+
+    funcForF: function(func) {
+        let funcIndex = "N10" + func.substring(func.length - 3, func.length).trim();
+        if (GcodeFixer.fix.functions.hasOwnProperty(funcIndex)) {
+            if (!GcodeFixer.usedFunctions.hasOwnProperty(funcIndex)) {
+                GcodeFixer.usedFunctions[funcIndex] = 0;
+            }
+            GcodeFixer.usedFunctions[funcIndex]++;
+            // result.push(funcIndex.replace('N', 'Q') + " inline " + line + '  i' + fIndex); //--------------------------------------------tmp disable
+            return funcIndex.replace('N', 'Q');
+//                    FinMemory = funcIndex.replace('N', 'Q') + ' ->' + line;
+        } else {
+            return null
+        }
     },
 
     parseFix: function(fix) {

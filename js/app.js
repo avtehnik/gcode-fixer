@@ -34,6 +34,7 @@ var vueApp = new Vue({
         onCncFile(sourse, name) {
             this.input = sourse;
             this.inputName = name;
+            //this.template = this.isoFiles[Object.keys(this.isoFiles)[0]];
             if (this.template.name !== 'null') {
                 this.onSelectIsoFile();
             }
