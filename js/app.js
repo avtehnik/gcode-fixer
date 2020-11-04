@@ -122,6 +122,7 @@ var vueApp = new Vue({
         deleteIsoFile: function(isoFile) {
             if (confirm('Ви точно хочете видалити ' + isoFile.name + '?')) {
                 Vue.delete(this.isoFiles, isoFile.name);
+                localStorage['isoFiles'] = JSON.stringify(this.isoFiles);
             }
         },
         downloadPart: function(downloadPart) {
