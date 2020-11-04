@@ -90,7 +90,7 @@ var vueApp = new Vue({
                         this.downloads.push({
                             data: data.join("\n"),
                             title: (key + 1) + ' ' + Math.floor(part.length / 1024) + 'kb',
-                            name: this.inputName + '_part-' + (key + 1)
+                            name: this.inputName + '.' + (key + 1)
                         });
 
 
