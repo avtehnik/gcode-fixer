@@ -150,7 +150,7 @@ GcodeFixer = {
                 result.push(subcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y);
                 lastSubcode = subcode;
 
-            } else if (subcode === 'G02' || subcode === 'G03') {
+            } else if (['G02', 'G03'].includes(subcode)) {
                 let vars = GcodeFixer.parseGVariables(line);
                 let x = vars['X'] || GcodeFixer.lastPosition.x;
                 let y = vars['Y'] || GcodeFixer.lastPosition.y;
@@ -314,8 +314,16 @@ GcodeFixer = {
 
             } else if (['X', 'Y'].includes(code)) {
                 let vars = GcodeFixer.parseGVariables(line);
+                let lastX  = GcodeFixer.lastPosition.x;
+                let lastY = GcodeFixer.lastPosition.y;
                 GcodeFixer.updateLastPosition(GcodeFixer.parseGVariables(line));
-                result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y);
+                if(['G02', 'G03'].includes(lastSubcode)){
+                    let j = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.j - lastY  );
+                    let i = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.i - lastX  );
+                    result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y+ 'I' + i + 'J' +  j);
+                }else {
+                    result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y);
+                }
             } else {
                 result.push(line);
             }
