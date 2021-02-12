@@ -51,7 +51,11 @@ GcodeFixer = {
         // const regex = /(([GXYIJ])(\-?[0-9]{1,5}\.[0-9]{1,3}))/g;
         const regex = /([GXYIJ])(-?\d+(\.\d*)?)/g;
         const found = line.match(regex);
-        var vars = {};
+        var vars = {
+            getOwnProperty: function(prop, def) {
+                return vars.hasOwnProperty(prop) ? vars[prop] : def;
+            }
+        };
         if (found) {
             found.forEach(function(variable) {
                 var varName = variable.substring(0, 1).toUpperCase();
@@ -130,8 +134,9 @@ GcodeFixer = {
                     parts.push(subResult);
                     result = [];
                 }
-                let x = vars['X'] || GcodeFixer.lastPosition.x;
-                let y = vars['Y'] || GcodeFixer.lastPosition.y;
+
+                let x = vars.getOwnProperty('X', GcodeFixer.lastPosition.x);
+                let y = vars.getOwnProperty('Y', GcodeFixer.lastPosition.y);
 
                 result.push('N' + page.toString() + ' P200=' + page.toString());
                 result.push(subcode + 'X' + x + 'Y' + y);
@@ -152,8 +157,12 @@ GcodeFixer = {
 
             } else if (['G02', 'G03'].includes(subcode)) {
                 let vars = GcodeFixer.parseGVariables(line);
-                let x = vars['X'] || GcodeFixer.lastPosition.x;
-                let y = vars['Y'] || GcodeFixer.lastPosition.y;
+                // let x = vars['X'] || GcodeFixer.lastPosition.x;
+                // let y = vars['Y'] || GcodeFixer.lastPosition.y;
+
+                let x = vars.getOwnProperty('X', GcodeFixer.lastPosition.x) ;
+                let y = vars.getOwnProperty('Y', GcodeFixer.lastPosition.y) ;
+
                 let x1 = GcodeFixer.lastPosition.x;
                 let y1 = GcodeFixer.lastPosition.y;
                 let j = GcodeFixer.formatCoordinate(vars['J'] - y1);
@@ -196,8 +205,10 @@ GcodeFixer = {
                         }
                         fixedPoint.x = x;
                     }
-                    x2 = vars['X'] || GcodeFixer.formatCoordinate(fixedPoint.x);
-                    y2 = vars['Y'] || GcodeFixer.formatCoordinate(fixedPoint.y);
+
+                    x2 = vars.getOwnProperty('X', GcodeFixer.formatCoordinate(fixedPoint.x));
+                    y2 = vars.getOwnProperty('Y', GcodeFixer.formatCoordinate(fixedPoint.y));
+
                     if (index < 30) {
                         console.table(x2, y2, angle, dist, vars['I'], vars['J']);
                         console.table(x, y, angle, dist, vars['I'], vars['J']);
@@ -221,7 +232,7 @@ GcodeFixer = {
                     }
 
 
-                    if(prevCode === 'F'){
+                    if (prevCode === 'F') {
                         let func = GcodeFixer.funcForF(prevLine);
                         if (func) {
                             result.push(func);//'робочий різ'
@@ -314,14 +325,14 @@ GcodeFixer = {
 
             } else if (['X', 'Y'].includes(code)) {
                 let vars = GcodeFixer.parseGVariables(line);
-                let lastX  = GcodeFixer.lastPosition.x;
+                let lastX = GcodeFixer.lastPosition.x;
                 let lastY = GcodeFixer.lastPosition.y;
                 GcodeFixer.updateLastPosition(GcodeFixer.parseGVariables(line));
-                if(['G02', 'G03'].includes(lastSubcode)){
-                    let j = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.j - lastY  );
-                    let i = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.i - lastX  );
-                    result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y+ 'I' + i + 'J' +  j);
-                }else {
+                if (['G02', 'G03'].includes(lastSubcode)) {
+                    let j = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.j - lastY);
+                    let i = GcodeFixer.formatCoordinate(GcodeFixer.lastPosition.i - lastX);
+                    result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y + 'I' + i + 'J' + j);
+                } else {
                     result.push(lastSubcode + 'X' + GcodeFixer.lastPosition.x + 'Y' + GcodeFixer.lastPosition.y);
                 }
             } else {
