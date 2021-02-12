@@ -24,7 +24,7 @@ var vueApp = new Vue({
             updated: ""
         },
         settings: {
-            debug: true,
+            debug: false,
             piercing: true
         },
         downloads: [],
