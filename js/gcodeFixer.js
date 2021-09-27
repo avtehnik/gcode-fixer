@@ -34,13 +34,13 @@ GcodeFixer = {
 
 
     distance: function(p1, p2) {
-        var dx = p1.x - p2.x;
-        var dy = p1.y - p2.y;
+        let dx = p1.x - p2.x;
+        let dy = p1.y - p2.y;
         return Math.sqrt(dx * dx + dy * dy);
     },
 
     toPolar: function(point, angle, r) {
-        var direct = GcodeFixer.degToRad(angle);
+        let direct = GcodeFixer.degToRad(angle);
         return {
             'x': (r * Math.cos(direct)) + point.x,
             'y': (r * Math.sin(direct)) + point.y,
@@ -51,14 +51,14 @@ GcodeFixer = {
         // const regex = /(([GXYIJ])(\-?[0-9]{1,5}\.[0-9]{1,3}))/g;
         const regex = /([GXYIJ])(-?\d+(\.\d*)?)/g;
         const found = line.match(regex);
-        var vars = {
+        let vars = {
             getOwnProperty: function(prop, def) {
                 return vars.hasOwnProperty(prop) ? vars[prop] : def;
             }
         };
         if (found) {
             found.forEach(function(variable) {
-                var varName = variable.substring(0, 1).toUpperCase();
+                let varName = variable.substring(0, 1).toUpperCase();
                 vars[varName] = parseFloat(variable.replace(varName, ''));
             })
         }
@@ -255,7 +255,7 @@ GcodeFixer = {
                 }
                 laterEnabled = true;
                 // result.push('G08');//
-                if (subcode.charAt(0) == 'G') {
+                if (subcode.charAt(0) === 'G') {
                     lastSubcode = subcode;
                 }
             } else if (subcode === '(Se') {
@@ -269,7 +269,7 @@ GcodeFixer = {
                     result.push('Q1901');
                 }
                 laterEnabled = false;
-                if (subcode.charAt(0) == 'G') {
+                if (subcode.charAt(0) === 'G') {
                     lastSubcode = subcode;
                 }
             } else if (code === '%') {
@@ -292,8 +292,7 @@ GcodeFixer = {
                 if (vars['I']) {
 
                     let i = GcodeFixer.formatCoordinate(vars['I'] - GcodeFixer.lastPosition.x);
-                    let j = i * -1;
-
+                    let j = GcodeFixer.formatCoordinate(vars['J'] - GcodeFixer.lastPosition.y);
 
                     let x = GcodeFixer.lastPosition.x + i;
                     let y = GcodeFixer.lastPosition.y + j;
