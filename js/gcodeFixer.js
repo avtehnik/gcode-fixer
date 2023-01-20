@@ -8,7 +8,7 @@ GcodeFixer = {
     settings: {
         piercing: true,
         // limit: 1024
-        limit: 1024 * 170
+        limit: 1024 * 200
     },
 
     process: function(sourse, settings) {
